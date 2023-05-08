@@ -1,0 +1,27 @@
+Name: Sync S3 Buckets
+
+on:
+  s3:
+    types:
+      - ObjectCreated:*
+
+jobs:
+  sync-buckets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials for source bucket
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_1 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_1 }}
+          aws-region: us-east-1
+      - name: Download object from source bucket
+        run: aws s3 sync s3://jatin-test-9696 {{ github.workspace }}
+      - name: Configure AWS credentials for destination bucket
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_2 }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_2 }}
+          aws-region: us-west-2
+      - name: Upload object to destination bucket
+        run: aws s3 sync {{ github.workspace }} s3://bamel-test-123
